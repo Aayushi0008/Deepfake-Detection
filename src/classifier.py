@@ -3,20 +3,16 @@ import datetime as dt
 import os
 import tensorflow as tf
 import numpy as np
+import tensorflow.keras.backend as K
 import random
 
 np.random.seed(1337)
 random.seed(1337)
 tf.random.set_seed(1)
 
-import tensorflow.keras.backend as K
-import xceptionnet
-import xceptionnet_dct
-import xception_fused_bin_dwt
-import xception_fused_bin
-import xception_fused_bin_fft
-import xceptionnet_dwt
-from dataset import deserialize_data, deserialize_data_
+import xception
+import xception_cross_stitched
+from dataset import deserialize_data
 from models import (build_shallow_cnn, build_xception)
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
@@ -58,15 +54,15 @@ def build_model(args):
                                          classifier_activation='softmax')
         elif args.MODEL == "cnn":
             model = build_shallow_cnn(input_shape, CLASSES)
-        elif args.MODEL == "xceptionnet":
+        elif args.MODEL == "xception":
             normalize = tf.keras.layers.experimental.preprocessing.Normalization()
             normalize.adapt(getTrainData(args))
     
             print("mean", normalize.mean_val)
             print("variance", normalize.variance_val)
-            model = xception_fused_bin.build_model(normalize=normalize)
+            model = xception_cross_stitched.build_model(normalize=normalize)
             
-            #model = xceptionnet.Xception(include_top=False, input_shape=INPUT_SHAPE)
+            #model = xception.Xception(include_top=False, input_shape=INPUT_SHAPE)
             #x = tf.keras.layers.GlobalAveragePooling2D(name="avg_pool")(model.output)
             #x = tf.keras.layers.Dropout(0.2)(x)
             #x = tf.keras.layers.Dense(512, activation='relu', name="fc_layer")(x)
@@ -158,7 +154,7 @@ def train_and_save_model(args):
 def load_weights_pretrained(args):
     test_dataset = load_tfrecord(args.TEST_DATASET, train=False)
     ckpt_path = args.CKPT_PATH
-    base_model = xceptionnet.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE,
+    base_model = xception.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE,
                                       classifier_activation='softmax')
 
     inputs = tf.keras.Input(INPUT_SHAPE)
@@ -196,7 +192,7 @@ def load_weights(args):
     #new_model = tf.keras.Model(inputs=model.input, outputs=outputs)
     #model = new_model
     
-    model = xception_fused_bin.build_model(normalize=normalize)
+    model = xception_cross_stitched.build_model(normalize=normalize)
 
     
     learning_rate = 2e-4
@@ -226,16 +222,16 @@ def fit_on_pretrained(args):
     filepath = args.CKPT_PATH
     model_dir = args.MODEL_DIR
     with mirrored_strategy.scope():
-        base_model = xceptionnet.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE) 
+        base_model = xception.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE) 
 
         base_model.trainable = False
         model = build_xception(base_model, input_shape=INPUT_SHAPE)
         learning_rate = 2e-4
-        #loss = tf.keras.losses.binary_crossentropy
-        #metrics = [tf.keras.metrics.BinaryAccuracy(), tf.keras.metrics.AUC(), "accuracy"]
+        loss = tf.keras.losses.binary_crossentropy
+        metrics = [tf.keras.metrics.BinaryAccuracy(), tf.keras.metrics.AUC(), "accuracy"]
   
-        loss = tf.keras.losses.sparse_categorical_crossentropy
-        metrics = ["accuracy"]
+        #loss = tf.keras.losses.sparse_categorical_crossentropy
+        #metrics = ["accuracy"]
         
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         model.compile(optimizer=optimizer,
