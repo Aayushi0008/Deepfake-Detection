@@ -17,6 +17,8 @@ We utilise three popular datasets:
 
 ## Dataset Preparation
 
+If running the code in a container, then use the yaml files in the docker folder in the repository. 
+
 ## Experiments
 
 ### Training
