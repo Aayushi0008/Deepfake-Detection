@@ -22,12 +22,12 @@ If running the code in a container, then use the yaml files in the docker folder
 Script Usage: prepare_dataset.py [--raw] [--log] [--color] DIRECTORY
 
 positional arguments:
-DIRECTORY           Directory of images to convert into a TFRecord file
+DIRECTORY  Directory of images to convert into a TFRecord file
 
 optional arguments:
---raw               Save image data as raw image.
---log               Log scale Images.
---color             Compute as RGB images.
+--raw      Save image data as raw image.
+--log      Log scale Images.
+--color    Compute as RGB images.
 ```
 ## Experiments
 
