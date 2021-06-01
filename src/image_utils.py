@@ -14,8 +14,11 @@ def fft(array):
     array = np.transpose(array, axes=[1, 2, 0])
     return array
 
-def load_image(path):
+def load_image(path, grayscale=False):
     x = Image.open(path)
+    if grayscale:
+        x = x.convert("L")
+        
     return np.asarray(x)
 
 def normalize(image, mean, std):
