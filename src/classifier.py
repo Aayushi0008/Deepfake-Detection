@@ -75,7 +75,7 @@ def build_model(args):
             #model = new_model
 
         elif args.MODEL == "densenet":
-            model = DenseNet121(include_top=False, weights=None, input_shape=(224, 224, 3), classes=2)
+            model = tf.keras.applications.DenseNet121(include_top=False, weights=None, input_shape=(224, 224, 3), classes=2)
             inputs = keras.Input(shape=(224, 224, 3))
             x = model(inputs)
             x = keras.layers.GlobalAveragePooling2D()(x)
@@ -120,7 +120,7 @@ def train(args):
     callbacks = [
             tf.keras.callbacks.EarlyStopping(
             monitor='val_loss',
-            patience=5,
+            patience=8,
             restore_best_weights=True,
             ),
             #tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1),
@@ -226,10 +226,7 @@ def fit_on_pretrained(args):
     filepath = args.CKPT_PATH
     model_dir = args.MODEL_DIR
     with mirrored_strategy.scope():
-        #base_model = tf.keras.applications.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE,
-        #                                            classifier_activation='softmax')
         base_model = xceptionnet.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE) 
-        
 
         base_model.trainable = False
         model = build_xception(base_model, input_shape=INPUT_SHAPE)
@@ -257,7 +254,7 @@ def fit_on_pretrained(args):
         callbacks = [
             tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=5,
+                patience=8,
                 restore_best_weights=True,
             ),
             tf.keras.callbacks.ModelCheckpoint(
