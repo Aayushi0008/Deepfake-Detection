@@ -14,11 +14,10 @@ import xceptionnet
 import xceptionnet_dct
 import xception_fused_bin_dwt
 import xception_fused_bin
-import xception_fused_bin_2
 import xception_fused_bin_fft
 import xceptionnet_dwt
 from dataset import deserialize_data, deserialize_data_
-from models import (build_simple_cnn, build_xception, build_resnet)
+from models import (build_shallow_cnn, build_xception)
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 BATCH_SIZE = 32
@@ -55,10 +54,10 @@ def build_model(args):
 
     with mirrored_strategy.scope():
         if args.MODEL == "resnet":
-            model = ResNet50(include_top=True, weights=None, input_shape=(224, 224, 3), classes=2,
+            model = tf.keras.applications.ResNet50(include_top=True, weights=None, input_shape=(224, 224, 3), classes=2,
                                          classifier_activation='softmax')
         elif args.MODEL == "cnn":
-            model = build_simple_cnn(input_shape, CLASSES)
+            model = build_shallow_cnn(input_shape, CLASSES)
         elif args.MODEL == "xceptionnet":
             normalize = tf.keras.layers.experimental.preprocessing.Normalization()
             normalize.adapt(getTrainData(args))
