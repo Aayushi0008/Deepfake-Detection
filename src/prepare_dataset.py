@@ -8,7 +8,6 @@ import tensorflow as tf
 
 from dataset import image_paths, serialize_data
 from image_np import dct2, load_image, normalize, scale_image
-from imagenet_utils import preprocess_input
 
 def collect_paths(directory):
     directories = sorted(map(str, filter(
