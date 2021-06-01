@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 class CrossStitch(tf.keras.layers.Layer):
     def __init__(self, num_tasks, *args, **kwargs):
         self.num_tasks = num_tasks
@@ -16,7 +15,7 @@ class CrossStitch(tf.keras.layers.Layer):
         super(CrossStitch, self).build(input_shape)
 
     def call(self, xl):
-        out_values = []
+        output = []
         for this_task in range(self.num_tasks):
             this_weight = self.kernel[this_task, this_task]
             out = tf.math.scalar_mul(this_weight, xl[this_task])
@@ -25,9 +24,9 @@ class CrossStitch(tf.keras.layers.Layer):
                     continue
                     other_weight = self.kernel[this_task, other_task]
                     out += tf.math.scalar_mul(other_weight, xl[other_task])
-            out_values.append(out)
+            output.append(out)
 
-        return tf.stack(out_values, axis=0)
+        return tf.stack(output, axis=0)
 
     def compute_output_shape(self, input_shape):
         return [self.num_tasks] + input_shape
@@ -35,7 +34,6 @@ class CrossStitch(tf.keras.layers.Layer):
 def custom_init(shape, dtype=None):
     x = tf.constant([[0.9, 0.1], [0.1, 0.9]])
     return x
-
 
 if __name__ == "__main__":
 
