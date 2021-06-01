@@ -39,6 +39,45 @@ Script Usage: classifier.py train [--epochs EPOCHS]
                           [--batch_size BATCH_SIZE]
                           MODEL TRAIN_DATASET VAL_DATASET
 
+positional arguments:
+  MODEL                 Select model to train {resnet, cnn, nn, log, log1,
+                        log2, log3}.
+  TRAIN_DATASET         Dataset to load.
+  VAL_DATASET           Dataset to load.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug, -d           Debug mode.
+  --epochs EPOCHS, -e EPOCHS
+                        Epochs to train for; Default: 50.
+  --image_size IMAGE_SIZE
+                        Image size. Default: [128, 128, 3]
+  --early_stopping EARLY_STOPPING
+                        Early stopping criteria. Default: 5
+  --classes CLASSES     Classes. Default: 5
+  --grayscale, -g       Train on grayscaled images.
+  --batch_size BATCH_SIZE, -b BATCH_SIZE
+                        Batch size. Default: 32
+  --l1 L1               L1 reguralizer intensity. Default: 0.01
+  --l2 L2               L2 reguralizer intensity. Default: 0.01
+
 ```
 
 ### Testing
+```
+usage: classifer.py test [-h] [--image_size IMAGE_SIZE] [--grayscale]
+                         [--batch_size BATCH_SIZE]
+                         MODEL TEST_DATASET
+
+positional arguments:
+  MODEL                 Path to model.
+  TEST_DATASET          Dataset to load.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --image_size IMAGE_SIZE
+                        Image size. Default: [128, 128, 3]
+  --grayscale, -g       Test on grayscaled images.
+  --batch_size BATCH_SIZE, -b BATCH_SIZE
+                        Batch size. Default: 32
+```
