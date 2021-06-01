@@ -1,6 +1,5 @@
 import tensorflow as tf
 import cross_stitch
-import cross_stitch_2
 from tensorflow.python.keras.utils import data_utils
 layers = tf.keras.layers
 
@@ -11,14 +10,14 @@ def build_model(normalize=None):
 
     channel_axis = -1
     
-    img_input_2 = doDCT(img_input)
-    img_input_2 = log(img_input_2)
-    img_input_2 = normalize(img_input_2)
+    img_input_1 = doDCT(img_input)
+    img_input_1 = log(img_input_1)
+    img_input_1 = normalize(img_input_1)
     x = layers.Conv2D(
         32, (3, 3),
         strides=(2, 2),
         use_bias=False,
-        name='block1_conv1_dct')(img_input_2)
+        name='block1_conv1_dct')(img_input_1)
     x = layers.BatchNormalization(axis=channel_axis, name='block1_conv1_bn_dct')(x)
     x = layers.Activation('relu', name='block1_conv1_act_dct')(x)
     x = layers.Conv2D(64, (3, 3), use_bias=False, name='block1_conv2_dct')(x)
@@ -151,12 +150,12 @@ def build_model(normalize=None):
 
     
     x_norm = layers.experimental.preprocessing.Rescaling(scale=1.0 / 127.5, offset=-1)
-    img_input_1 = x_norm(img_input)
+    img_input_2 = x_norm(img_input)
     x = layers.Conv2D(
         32, (3, 3),
         strides=(2, 2),
         use_bias=False,
-        name='block1_conv1')(img_input_1)
+        name='block1_conv1')(img_input_2)
     x = layers.BatchNormalization(axis=channel_axis, name='block1_conv1_bn')(x)
     x = layers.Activation('relu', name='block1_conv1_act')(x)
     x = layers.Conv2D(64, (3, 3), use_bias=False, name='block1_conv2')(x)
