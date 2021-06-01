@@ -7,7 +7,7 @@ import numpy as np
 import tensorflow as tf
 
 from dataset import image_paths, serialize_data
-from image_np import dct2, load_image, normalize, scale_image
+from image_utils import dct, load_image, normalize, scale_image
 
 def collect_paths(directory):
     directories = sorted(map(str, filter(
@@ -93,7 +93,7 @@ def log(array, epsilon=1e-12):
     array = np.log(array)
     return array
 
-def convert_images(inputs, load_function, transformation_function=None, absolute_function=None, normalize_function=None):
+def convert_images(inputs, load_function, transformation_function=None):
     image, label = inputs
     image = load_function(image)
     if transformation_function is not None:
@@ -101,7 +101,17 @@ def convert_images(inputs, load_function, transformation_function=None, absolute
 
     return image, label
 
-def create_directory_tf(output_path, images, convert_function):
+
+def dct2_wrapper(image, log=False):
+    image = np.asarray(image)
+    image = dct2(image)
+    if log:
+        image = log_scale(image)
+
+    return image
+
+
+def create_directory(output_path, images, convert_function):
     os.makedirs(output_path, exist_ok=True)
 
     converted_images = map(convert_function, images)
@@ -121,7 +131,7 @@ def create_directory_tf(output_path, images, convert_function):
     writer.write(dataset)
 
 
-def tfmode(directory, encode_function, outpath):
+def create_all_directories(directory, encode_function, outpath):
     train_dataset, val_dataset, test_dataset = collect_all_paths(directory)
     create_directory_tf(f"{outpath}_train_tf",
                         train_dataset, encode_function)
@@ -136,8 +146,7 @@ def tfmode(directory, encode_function, outpath):
 
 def main(args):
     output = f"{args.DIRECTORY.rstrip('/')}"
-    load_function = functools.partial(
-        load_image, tf=args.mode == "tfrecords")
+    load_function = functools.partial(load_image)
     transformation_function = None
 
     if args.color:
@@ -148,20 +157,16 @@ def main(args):
         output += "_raw"
     else:
         output += "_dct"
-        transformation_function = _dct2_wrapper
+        transformation_function = dct2_wrapper
 
         if args.log:
-            # log scale only for dct coefficients
-            assert args.raw is False
-
             transformation_function = functools.partial(
-                _dct2_wrapper, log=True)
+                dct2_wrapper, log=True)
             output += "_log_scaled"
             
     encode_function = functools.partial(convert_images, load_function=load_function,
-                                        transformation_function=transformation_function,
-                                        absolute_function=absolute_function)
-    tfmode(args.DIRECTORY, encode_function, output)
+                                        transformation_function=transformation_function)
+    create_all_directories(args.DIRECTORY, encode_function, output)
 
 
 def parse_args():
@@ -176,12 +181,6 @@ def parse_args():
                         action="store_true")
     parser.add_argument("--color", "-c", help="Compute as color instead.",
                         action="store_true")
-
-    modes = parser.add_subparsers(
-        help="Select the mode {normal|tfrecords}", dest="mode")
-
-    _ = modes.add_parser("normal")
-    _ = modes.add_parser("tfrecords")
 
     return parser.parse_args()
 
