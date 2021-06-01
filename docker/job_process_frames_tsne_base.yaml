@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: iiitaayushijob3
+     name: iiitaayushijob8
 spec:
   template:
     spec:
@@ -9,13 +9,13 @@ spec:
       - name: iiitaayushijob
         image: nvcr.io/nvidia/tensorflow:19.08-py3_mumax3
         command: ["python"]
-        args: ["/workspace/data/src/classifier.py", "train", "xceptionnet", "/workspace/data/classification/c23/c23_xception/tfrecords/all_color_raw_val_tf/data.tfrecords", "/workspace/data/classification/c23/c23_xception/tfrecords/all_color_raw_test_tf/data.tfrecords", "/workspace/data/trained_models/model_NT_orig_3_block_att/", "/workspace/data/ckpt-dir-transform-10", "-b=32", "--classes=2", "--epochs=100","--image_size=299"]
+        args: ["/workspace/data/src/processFrames_tsne_base.py", "-o=/workspace/data/src", "-i=/workspace/data/manipulated_sequences/NeuralTextures/c23/test", "--end_frame=3"]
         env:
         - name: HOME
           value: /home/iiitaayushi
         resources:
           limits:
-           nvidia.com/gpu: 1
+            nvidia.com/gpu: 1
         volumeMounts:
         - name: data
           mountPath: /workspace/data
