@@ -36,9 +36,7 @@ def custom_init(shape, dtype=None):
     return x
 
 if __name__ == "__main__":
-
     inputs = tf.keras.layers.Input(shape=[27, 107, 50])
-
     num_tasks = 2
     tops = [inputs] * num_tasks
     for task_id in range(num_tasks):
