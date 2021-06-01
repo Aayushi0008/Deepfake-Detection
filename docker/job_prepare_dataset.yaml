@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-        name: iiitaayushijob25
+        name: iiitaayushijobprepdataset
 spec:
   template:
     spec:
@@ -9,7 +9,7 @@ spec:
       - name: iiitaayushijob
         image: nvcr.io/nvidia/tensorflow:19.08-py3_mumax3
         command: ["python"]
-        args: ["/workspace/data/src/prepare_dataset.py", "/workspace/data/classification/celeb-df", "--raw", "--color", "tfrecords"]
+        args: ["/workspace/data/src/prepare_dataset.py", "/workspace/data/classification/", "--raw", "--color", "--normalize", "tfrecords"]
         env:
         - name: HOME
           value: /home/iiitaayushi
