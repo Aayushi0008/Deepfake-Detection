@@ -32,5 +32,13 @@ optional arguments:
 ## Experiments
 
 ### Training
+```
+Script Usage: classifier.py train [--epochs EPOCHS]
+                          [--image_size IMAGE_SIZE]
+                          [--classes CLASSES] [--grayscale]
+                          [--batch_size BATCH_SIZE]
+                          MODEL TRAIN_DATASET VAL_DATASET
+
+```
 
 ### Testing
