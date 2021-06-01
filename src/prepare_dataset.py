@@ -93,6 +93,7 @@ def log(array, epsilon=1e-12):
     array = np.log(array)
     return array
 
+
 def convert_images(inputs, load_function, transformation_function=None):
     image, label = inputs
     image = load_function(image)
@@ -104,9 +105,9 @@ def convert_images(inputs, load_function, transformation_function=None):
 
 def dct2_wrapper(image, log=False):
     image = np.asarray(image)
-    image = dct2(image)
+    image = dct(image)
     if log:
-        image = log_scale(image)
+        image = log(image)
 
     return image
 
@@ -133,13 +134,13 @@ def create_directory(output_path, images, convert_function):
 
 def create_all_directories(directory, encode_function, outpath):
     train_dataset, val_dataset, test_dataset = collect_all_paths(directory)
-    create_directory_tf(f"{outpath}_train_tf",
+    create_directory(f"{outpath}_train_tf",
                         train_dataset, encode_function)
     print(f"\nConverted train images!")
-    create_directory_tf(f"{outpath}_val_tf",
+    create_directory(f"{outpath}_val_tf",
                         val_dataset, encode_function)
     print(f"\nConverted val images!")
-    create_directory_tf(f"{outpath}_test_tf",
+    create_directory(f"{outpath}_test_tf",
                         test_dataset, encode_function)
     print(f"\nConverted test images!")
 
