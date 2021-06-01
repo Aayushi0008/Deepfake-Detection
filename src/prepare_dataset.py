@@ -10,16 +10,6 @@ from dataset import image_paths, serialize_data
 from image_np import dct2, load_image, normalize, scale_image
 from imagenet_utils import preprocess_input
 
-def _collect_image_paths(directory):
-    images = list(sorted(image_paths(directory)))
-
-    train_dataset = images[:TRAIN_SIZE]
-    val_dataset = images[TRAIN_SIZE: TRAIN_SIZE + VAL_SIZE]
-    test_dataset = images[TRAIN_SIZE +
-                          VAL_SIZE:TRAIN_SIZE + VAL_SIZE + TEST_SIZE]
-
-    return train_dataset, val_dataset, test_dataset
-
 def collect_paths(directory):
     directories = sorted(map(str, filter(
         lambda x: x.is_dir(), Path(directory).iterdir())))
@@ -104,7 +94,6 @@ def log(array, epsilon=1e-12):
     array = np.log(array)
     return array
 
-
 def convert_images(inputs, load_function, transformation_function=None, absolute_function=None, normalize_function=None):
     image, label = inputs
     image = load_function(image)
@@ -151,22 +140,13 @@ def main(args):
     load_function = functools.partial(
         load_image, tf=args.mode == "tfrecords")
     transformation_function = None
-    normalize_function = None
-    absolute_function = None
 
     if args.color:
         load_function = functools.partial(load_function, grayscale=False)
         output += "_color"
 
-    # dct or raw image data?
     if args.raw:
         output += "_raw"
-
-        # normalization scales to [-1, 1]
-        if args.normalize:
-            normalize_function = scale_image
-            output += "_normalized"
-
     else:
         output += "_dct"
         transformation_function = _dct2_wrapper
@@ -182,10 +162,7 @@ def main(args):
     encode_function = functools.partial(convert_images, load_function=load_function,
                                         transformation_function=transformation_function,
                                         absolute_function=absolute_function)
-    if args.mode == "normal":
-        normal_mode(args.DIRECTORY, encode_function, output)
-    elif args.mode == "tfrecords":
-        tfmode(args.DIRECTORY, encode_function, output)
+    tfmode(args.DIRECTORY, encode_function, output)
 
 
 def parse_args():
@@ -198,11 +175,7 @@ def parse_args():
                         action="store_true")
     parser.add_argument("--log", "-l", help="Log scale Images.",
                         action="store_true")
-    parser.add_argument("--abs", "-a", help="Scale each feature by its max absolute value.",
-                        action="store_true")
     parser.add_argument("--color", "-c", help="Compute as color instead.",
-                        action="store_true")
-    parser.add_argument("--normalize", "-n", help="Normalize data.",
                         action="store_true")
 
     modes = parser.add_subparsers(
