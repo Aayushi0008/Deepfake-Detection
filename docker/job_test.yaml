@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: iiitaayushijob22
+  name: iiitaayushijobtest
 spec:
   template:
     spec:
@@ -9,13 +9,13 @@ spec:
       - name: iiitaayushijob
         image: nvcr.io/nvidia/tensorflow:19.08-py3_mumax3
         command: ["python"]
-        args: ["/workspace/data/src/classifier.py", "test", "/workspace/data/trained_models/checkpoint/", "/workspace/data/classification/celeb-df_color_raw_test_tf/data.tfrecords", "-b=32", "--image_size=299"]
+        args: ["/workspace/data/src/classifier.py", "test", "/workspace/data/trained_models/checkpoint/", "/workspace/data/classification/all_color_raw_test_tf/data.tfrecords", "-b=32", "--image_size=299"]
         env:
         - name: HOME
           value: /home/iiitaayushi
         resources:
           limits:
-            nvidia.com/gpu: 1
+            nvidia.com/gpu: 2
         volumeMounts:
         - name: data
           mountPath: /workspace/data
