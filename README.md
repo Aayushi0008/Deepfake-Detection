@@ -16,8 +16,12 @@ We utilise three popular datasets:
 * [Deepfake Detection](https://github.com/ondyari/FaceForensics/tree/master/dataset/DeepFakeDetection)
 
 ## Dataset Preparation
-```
-If running the code in a container, then use the yaml files in the docker folder in the repository. 
+
+If running the code in a container, then use the yaml files in the docker folder in the repository.
+
+``` 
+Script Usage: process_frames.py [--video_path] [--output_path] [--start_frame] [--end_frame] 
+to extract frames and do an enlarged face crop for all the frames. 
 
 Script Usage: prepare_dataset.py [--raw] [--log] [--color] DIRECTORY
 
@@ -35,20 +39,17 @@ optional arguments:
 ```
 Script Usage: classifier.py train [--epochs EPOCHS]
                           [--image_size IMAGE_SIZE]
-                          [--classes CLASSES] [--grayscale]
+                          [--classes CLASSES]
                           [--batch_size BATCH_SIZE]
                           MODEL TRAIN_DATASET VAL_DATASET
 
 positional arguments:
-  MODEL                 Select model to train {resnet, cnn, nn, log, log1,
-                        log2, log3}.
-  TRAIN_DATASET         Dataset to load.
-  VAL_DATASET           Dataset to load.
+  MODEL                 Select model to train {cnn, xception}
+  TRAIN_DATASET         Train Dataset to load.
+  VAL_DATASET           Validation Dataset to load.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --debug, -d           Debug mode.
-  --epochs EPOCHS, -e EPOCHS
+  --epochs EPOCHS
                         Epochs to train for; Default: 50.
   --image_size IMAGE_SIZE
                         Image size. Default: [128, 128, 3]
