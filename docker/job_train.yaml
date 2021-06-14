@@ -9,7 +9,7 @@ spec:
       - name: iiitaayushijob
         image: nvcr.io/nvidia/tensorflow:19.08-py3_mumax3
         command: ["python"]
-        args: ["/workspace/data/src/classifier.py", "train", "xceptionnet", "/workspace/data/classification/c23/tfrecords/all_color_raw_train_tf/data.tfrecords", "/workspace/data/classification/c23/tfrecords/all_color_raw_val_tf/data.tfrecords", "/workspace/data/trained_models/", "/workspace/data/ckpt-dir-transform-10", "-b=32", "--classes=2", "--epochs=100","--image_size=299"]
+        args: ["/workspace/data/src/classifier.py", "train", "xception", "/workspace/data/classification/c23/tfrecords/all_color_raw_train_tf/data.tfrecords", "/workspace/data/classification/c23/tfrecords/all_color_raw_val_tf/data.tfrecords", "/workspace/data/trained_models/", "/workspace/data/checkpoint/ckpt.h5", "-b=32", "--classes=2", "--epochs=100","--image_size=299"]
         env:
         - name: HOME
           value: /home/iiitaayushi
