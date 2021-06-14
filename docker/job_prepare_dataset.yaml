@@ -9,7 +9,7 @@ spec:
       - name: iiitaayushijob
         image: nvcr.io/nvidia/tensorflow:19.08-py3_mumax3
         command: ["python"]
-        args: ["/workspace/data/src/prepare_dataset.py", "/workspace/data/classification/", "--raw", "--color", "--normalize", "tfrecords"]
+        args: ["/workspace/data/src/prepare_dataset.py", "/workspace/data/classification/c23/all/original/train", "--raw", "--color", "tfrecords"]
         env:
         - name: HOME
           value: /home/iiitaayushi
