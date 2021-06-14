@@ -110,13 +110,12 @@ def train(args):
     train_dataset = load_tfrecord(args.TRAIN_DATASET)
     val_dataset = load_tfrecord(args.VAL_DATASET)
     model = build_model(args)
-    model_dir = args.MODEL_DIR 
-    ckpt_path = args.CKPT_PATH
+    filepath = args.CKPT_PATH
     
     callbacks = [
             tf.keras.callbacks.EarlyStopping(
             monitor='val_loss',
-            patience=8,
+            patience=args.early_stopping,
             restore_best_weights=True,
             ),
             #tf.keras.callbacks.LearningRateScheduler(scheduler, verbose=1),
@@ -128,7 +127,7 @@ def train(args):
                 verbose=1
             ),
             tf.keras.callbacks.ModelCheckpoint(
-                filepath=ckpt_path,
+                filepath=filepath,
                 save_weights_only=True,
                 monitor='val_accuracy',
                 mode='max',
@@ -218,9 +217,8 @@ def fit_on_pretrained(args):
     mirrored_strategy = tf.distribute.MirroredStrategy()
     train_dataset = load_tfrecord(args.TRAIN_DATASET)
     val_dataset = load_tfrecord(args.VAL_DATASET)
-
     filepath = args.CKPT_PATH
-    model_dir = args.MODEL_DIR
+   
     with mirrored_strategy.scope():
         base_model = xception.Xception(include_top=False, weights='imagenet', input_shape=INPUT_SHAPE) 
 
@@ -250,7 +248,7 @@ def fit_on_pretrained(args):
         callbacks = [
             tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=8,
+                patience=args.early_stopping,
                 restore_best_weights=True,
             ),
             tf.keras.callbacks.ModelCheckpoint(
@@ -299,10 +297,10 @@ def parse_args():
     train.add_argument("MODEL", type=str)
     train.add_argument("TRAIN_DATASET", type=str)
     train.add_argument("VAL_DATASET", type=str)
-    train.add_argument("MODEL_DIR", type=str)
     train.add_argument("CKPT_PATH", type=str)
     train.add_argument("--epochs", "-e", type=int, default=epochs)
     train.add_argument("--image_size", type=int, default=128)
+    train.add_argument("--early_stopping", type=int, default=5)
     train.add_argument("--classes", type=int, default=CLASSES)
     train.add_argument("--batch_size", "-b", type=int, default=BATCH_SIZE)
 
