@@ -23,15 +23,21 @@ If running the code in a container, then use the yaml files in the docker folder
 Script Usage: process_frames.py [--video_path] [--output_path] [--start_frame] [--end_frame] 
 to extract frames and do an enlarged face crop for all the frames. 
 
+Arguments:
+--video_path    Path to the folder containing videos
+--output_path   Path to the folder for extracted frames
+--start_frame   Number of start frame
+--end_frame     Number of end frame
+
 Script Usage: prepare_dataset.py [--raw] [--log] [--color] DIRECTORY
 
 positional arguments:
 DIRECTORY  Directory of images to convert into a TFRecord file
 
 optional arguments:
---raw      Save image data as raw image.
+--raw      Save image data as raw image or 
 --log      Log scale Images.
---color    Compute as RGB images.
+--color    Compute as RGB image.
 ```
 ## Experiments
 
@@ -41,10 +47,11 @@ Script Usage: classifier.py train [--epochs EPOCHS]
                           [--image_size IMAGE_SIZE]
                           [--classes CLASSES]
                           [--batch_size BATCH_SIZE]
-                          MODEL TRAIN_DATASET VAL_DATASET
+                          MODEL CKPT_PATH TRAIN_DATASET VAL_DATASET
 
 positional arguments:
   MODEL                 Select model to train {cnn, xception}
+  CKPT_PATH             Path where the train checkpoint will be stored
   TRAIN_DATASET         Train Dataset to load.
   VAL_DATASET           Validation Dataset to load.
 
@@ -55,30 +62,25 @@ optional arguments:
                         Image size. Default: [128, 128, 3]
   --early_stopping EARLY_STOPPING
                         Early stopping criteria. Default: 5
-  --classes CLASSES     Classes. Default: 5
-  --grayscale, -g       Train on grayscaled images.
+  --classes CLASSES     Classes. Default: 2
   --batch_size BATCH_SIZE, -b BATCH_SIZE
                         Batch size. Default: 32
-  --l1 L1               L1 reguralizer intensity. Default: 0.01
-  --l2 L2               L2 reguralizer intensity. Default: 0.01
 
 ```
 
 ### Testing
 ```
-usage: classifer.py test [-h] [--image_size IMAGE_SIZE] [--grayscale]
+Script Usage: classifer.py test [--image_size IMAGE_SIZE]
                          [--batch_size BATCH_SIZE]
-                         MODEL TEST_DATASET
+                         CKPT_PATH TEST_DATASET
 
 positional arguments:
-  MODEL                 Path to model.
-  TEST_DATASET          Dataset to load.
+  CKPT_PATH             Path to checkpoint.
+  TEST_DATASET          Test dataset to load.
 
 optional arguments:
-  -h, --help            show this help message and exit
   --image_size IMAGE_SIZE
                         Image size. Default: [128, 128, 3]
-  --grayscale, -g       Test on grayscaled images.
   --batch_size BATCH_SIZE, -b BATCH_SIZE
                         Batch size. Default: 32
 ```
