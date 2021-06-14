@@ -9,7 +9,7 @@ spec:
       - name: iiitaayushijob
         image: nvcr.io/nvidia/tensorflow:19.08-py3_mumax3
         command: ["python"]
-        args: ["/workspace/data/src/processFrames_real.py", "-o=/workspace/data/classification/c23/c23_xception/all/original/test", "-i=/workspace/data/original_sequences/youtube/c23/test/250.mp4", "--end_frame=100"]
+        args: ["/workspace/data/src/processFrames.py", "-o=/workspace/data/classification/c23/all/original/train", "-i=/workspace/data/original_sequences/youtube/c23/train", "--end_frame=100"]
         env:
         - name: HOME
           value: /home/iiitaayushi
