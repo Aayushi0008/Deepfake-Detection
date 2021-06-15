@@ -8,10 +8,6 @@ Paper link on my private drive account - https://drive.google.com/file/d/1UzqJ4I
 >The rapid progress in the ease of creating and spreading ultra-realistic media over social platforms calls for an urgent need to develop a generalizable deepfake detection technique. We observe that current deepfake generation methods leave discriminative artifacts in the frequency spectrum of fake images and videos. Inspired by this observation, in this paper, we present a novel approach, termed as MD-CSDNetwork, for combining the features in the spatial and frequency domains to mine a shared discriminative representation for classifying deepfakes. MD-CSDNetwork is a novel cross-stitched network with two parallel branches carrying the spatial and frequency information, respectively. We hypothesize that these multidomain input data streams can be considered as related supervisory signals. The supervision from both branches ensures better performance and generalization. Further, the concept of cross-stitch connections is utilized where they are inserted between the two branches to learn an optimal combination of domain specific and shared representations from other domains automatically. Extensive experiments are conducted on the popular benchmark dataset FaceForeniscs++ for forgery classification. We report improvements over all the manipulation types in FaceForensics++ dataset and comparable results with state-ofthe-art methods for cross-database evaluation on the Celeb-DF
 dataset and the Deepfake Detection Dataset.
 
-All the experiments are performed using the V100 GPUs on the Nvidia DGX-2 server.  
-Pod creation - 
-Running a script using kubectl- kubectl apply -f job.yaml
-
 ## Datasets
 
 We utilise three popular datasets:
@@ -24,6 +20,7 @@ We utilise three popular datasets:
 All python scripts are run inside a kubernetes pod.
 First, run pod_creation.sh in the master node to create a pod (within DGX-2 server)
 Next, use the yaml files inside the yaml folder to run any particular script. If needed, assign the number of V-100 GPUs needed in the configuration.
+The command is - kubectl apply -f job.yaml
 
 ``` 
 Script Usage: process_frames.py [--video_path] [--output_path] [--start_frame] [--end_frame] 
