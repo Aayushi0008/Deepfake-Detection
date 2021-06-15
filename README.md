@@ -21,7 +21,7 @@ We utilise three popular datasets:
 * First, run pod_creation.sh in the master node to create a pod  
 * Next, use the yaml files inside the yaml folder to run any particular script.   
 * If needed, assign the number of V-100 GPUs needed in the configuration.    
-* Command - kubectl apply -f job.yaml  
+* Command: kubectl apply -f job.yaml  
 
 ``` 
 Script Usage: process_frames.py [--video_path] [--output_path] [--start_frame] [--end_frame] 
