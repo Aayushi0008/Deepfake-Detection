@@ -1,51 +1,38 @@
-import numpy as np
-import xceptionnet
-from models import build_xception
-import tensorflow as tf
-from tensorflow import keras
 import PIL
-# Display
-from IPython.display import Image, display
+import tensorflow as tf
+import numpy as np
+import xception_cross_stitched
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from IPython.display import Image, display
 
 def get_img_array(img_path, size):
-    # `img` is a PIL image of size 299x299
     img = keras.preprocessing.image.load_img(img_path, target_size=size)
-    # `array` is a float32 Numpy array of shape (299, 299, 3)
     array = keras.preprocessing.image.img_to_array(img)
-    # We add a dimension to transform our array into a "batch"
-    # of size (1, 299, 299, 3)
     array = np.expand_dims(array, axis=0)
     return array
 
 
-def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None):
-    # First, we create a model that maps the input image to the activations
-    # of the last conv layer as well as the output predictions
-    grad_model = tf.keras.models.Model(
-        [model.inputs], [model.get_layer(last_conv_layer_name).output, model.output]
-    )
-
-    # Then, we compute the gradient of the top predicted class for our input image
-    # with respect to the activations of the last conv layer
+def make_gradcam_heatmap(img_array, grad_model, last_conv_layer_name, pred_index=None):
+    grad_model = tf.keras.Model(inputs=grad_model.input, outputs=[grad_model.get_layer(last_conv_layer_name).output, grad_model.output]
+     )
+   
     with tf.GradientTape() as tape:
         last_conv_layer_output, preds = grad_model(img_array)
+        print("preds", preds)
+
+        ##softmax
         if pred_index is None:
             pred_index = tf.argmax(preds[0])
         class_channel = preds[:, pred_index]
-
-    # This is the gradient of the output neuron (top predicted or chosen)
-    # with regard to the output feature map of the last conv layer
+        print("Pred index", pred_index)
+        print("Class channel", class_channel)
+     
     grads = tape.gradient(class_channel, last_conv_layer_output)
+    #print("grads", grads)
 
-    # This is a vector where each entry is the mean intensity of the gradient
-    # over a specific feature map channel
     pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
 
-    # We multiply each channel in the feature map array
-    # by "how important this channel is" with regard to the top predicted class
-    # then sum all the channels to obtain the heatmap class activation
     last_conv_layer_output = last_conv_layer_output[0]
     heatmap = last_conv_layer_output @ pooled_grads[..., tf.newaxis]
     heatmap = tf.squeeze(heatmap)
@@ -54,47 +41,74 @@ def make_gradcam_heatmap(img_array, model, last_conv_layer_name, pred_index=None
     heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
     return heatmap.numpy()
 
+def save_and_display_gradcam(img_path, heatmap, cam_path="cam.jpg", alpha=0.4):
+    img = tf.keras.preprocessing.image.load_img(img_path)
+    img = tf.keras.preprocessing.image.img_to_array(img)
+    heatmap = np.uint8(255 * heatmap)
+
+    # Use jet colormap to colorize heatmap
+    jet = cm.get_cmap("jet")
+
+    jet_colors = jet(np.arange(256))[:, :3]
+    jet_heatmap = jet_colors[heatmap]
+
+    # Create an image with RGB colorized heatmap
+    jet_heatmap = tf.keras.preprocessing.image.array_to_img(jet_heatmap)
+    jet_heatmap = jet_heatmap.resize((img.shape[1], img.shape[0]))
+    jet_heatmap.save('/content/cam_2.jpg')
+    jet_heatmap = tf.keras.preprocessing.image.img_to_array(jet_heatmap)
+    
+
+    # Superimpose the heatmap on original image
+    superimposed_img = jet_heatmap * alpha + img
+    superimposed_img = tf.keras.preprocessing.image.array_to_img(superimposed_img)
+    superimposed_img = superimposed_img.resize((100, 100))
+    # Save the superimposed image
+    superimposed_img.save(cam_path)
+
+    # Display Grad CAM
+    display(Image(cam_path))
 
 def main():
     INPUT_SHAPE = (299, 299, 3)
-    img = PIL.Image.open("/workspace/data/classification/c23/c23_xception/all/fake/NeuralTextures/train/350_349_0060.png")
-    img_array = tf.keras.preprocessing.image.img_to_array(img) 
+    img = PIL.Image.open("image.png")
+    img_array = tf.keras.preprocessing.image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
     print("image array shape", img_array.shape)
-    base_model = xceptionnet.Xception(include_top=False, weights=None, input_shape=INPUT_SHAPE)
-    model = build_xception(base_model, input_shape=INPUT_SHAPE)
-
-    
+  
+    #F2F
+    layer = tf.keras.layers.experimental.preprocessing.Normalization(mean=np.array([0.08027123, 0.04175776, 0.09654982]), variance=np.array([2.6944017, 2.7303824, 2.649358]))
+ 
+    model = xception_cross_stitched.build_model(normalize=layer)
     learning_rate = 2e-4
-    #loss = tf.keras.losses.binary_crossentropy
-    #metrics = [tf.keras.metrics.BinaryAccuracy(threshold=0.5), tf.keras.metrics.AUC()]
     loss = tf.keras.losses.sparse_categorical_crossentropy
     metrics = ["accuracy"]
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 
     model.compile(optimizer=optimizer,
-                      loss=loss,
-                      metrics=metrics)
+                     loss=loss,
+                     metrics=metrics)
 
-    load_status = model.load_weights("/workspace/data/trained_models/checkpoint/c23/ckpt_finetune_NT_acc.h5")
-    model.summary()
+    load_status = model.load_weights("ckpt.h5")
 
     last_conv_layer_name = "block14_sepconv2_act"
     # Remove last layer's softmax
     model.layers[-1].activation = None
-    model.summary()
-    # Print what the top predicted class is
-    preds = model.predict(img_array)
+    print(model.get_layer(name=last_conv_layer_name))
+    #model.summary()
+    print(len(model.layers))
+    preds = model(img_array)
     print("Prediction", preds)
 
     # Generate class activation heatmap
     heatmap = make_gradcam_heatmap(img_array, model, last_conv_layer_name)
 
+
     # Display heatmap
     plt.matshow(heatmap)
     plt.show()
-
+    save_and_display_gradcam('image.png', heatmap)
 
 if __name__ == "__main__":
     main()
